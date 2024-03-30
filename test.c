@@ -11,9 +11,6 @@
  * Contains functions for creating test Record structs to a specified number, as well as a few tests for making sure the
  * database is being updated properly.
  *
- * THIS ASSUMES THAT THE db_load_csv() and db_read_csv() FUNCTIONS ARE LOCATED INSIDE THE database.c FILE! So you may want
- * to move these there for testing if you haven't already.
- *
  * Some other files that are necessary for this to work:
  * 1. database.h 
  * 2. test-database-read.csv (contains some test records)
