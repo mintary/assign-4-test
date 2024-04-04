@@ -55,6 +55,8 @@ Record createItem(const char *handle, const char *comment, long unsigned int fol
  * handle = test_k, comment = test_comment_k, followers = k, dateModified = startTime + k
  *
  * Takes as parameters the number of structs, and the startTime
+ *
+ * This needs to be freed afterwards! 
  */ 
 Record* createRecords(int num, int startTime) {
 	Record* records = malloc(num * sizeof(Record)); // Initialize array of Record structs
@@ -140,11 +142,11 @@ int main(void) {
 	Database newDatabase = db_create(); // Initializing a database
 	Database *db = &newDatabase;
 	int curTime = (int) time(NULL);
-	Record* records = createRecords(5, curTime); // Will test adding 5 Record structs
+	Record* records = createRecords(12, curTime); // Will test adding 5 Record structs
 
 	// Test functions
 	testEquals(0, createDatabase(db), "db_create()"); // Test that database is correctly initialized
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 12; i++) {
 		// Need to convert each element in array to a pointer to that element instead
 		Record curRecord = records[i];
 		Record* ptr_record = &curRecord;
@@ -156,16 +158,16 @@ int main(void) {
 	// Initialize pointers to test records
 	Record* record_ptr_0 = db_index(db, 0);
 	Record* record_ptr_4 = db_lookup(db, "test_4");
-	Record* record_ptr_5 = db_lookup(db, "test_5"); // Not in database
+	Record* record_ptr_12 = db_lookup(db, "test_12"); // Not in database
 	testEquals(0, record_ptr_0->followers, "db_index()"); // Use follower fields to check that the correct pointer was returned for db_index() 
 	testEquals(4, record_ptr_4->followers, "db_lookup() - handle in database"); // Use followers fields to check that the correct pointer was returned for db_lookup()
 	
-	int checkNull1 = (NULL == record_ptr_5); // This should be null
+	int checkNull1 = (NULL == record_ptr_12); // This should be null
 	testEquals(1, checkNull1, "db_lookup() - handle not in database"); // Test that db_lookup() returns null if the handle is not in the database
 	
-	Record parsedRecord = parse_record("parsed,11,11,parsed-comment");
+	Record parsedRecord = parse_record("parsed,13,13,parsed-comment");
 	Record *parsedRecord_ptr = &(parsedRecord);
-	testEquals(11, parsedRecord.followers, "parse_record() test"); // Test that parseRecord correctly returns a Record struct
+	testEquals(13, parsedRecord.followers, "parse_record() test"); // Test that parseRecord correctly returns a Record struct
 	printRecord(parsedRecord_ptr);
 
 	printf("----------\n");
@@ -175,7 +177,10 @@ int main(void) {
 	printDatabase(db);
 
 	printf("----------\n");
-	
+
+	FILE *writeSource = fopen("test-database-write.csv", "w"); // Clear the csv file before testing
+	fclose(writeSource);
+
 	db_write_csv(db, "test-database-write.csv");
 	printf("Testing writing into CSV file. Note that this file should be created if it does not exist already. Content should be same as what was read from db_load_csv()\n");
 	
@@ -197,6 +202,4 @@ int main(void) {
 
 	// Free allocated space
 	free(records);
-	db = NULL; // Dangling pointers
-	records = NULL;
 }
